@@ -10,7 +10,7 @@ namespace Gooeth.Controllers
 {
     public class NowController : ApiController
     {
-        // Get Character Info
+        // Get Info
         [HttpGet()]
         [Route("api/now/{id}")]
         public string Get(string id)
@@ -28,9 +28,8 @@ namespace Gooeth.Controllers
     }
 }
 
-
-//- /NOW                Create or get Character Info
-//- /NOW -reroll        Re-Roll Character
+//- /NOW                Create or get Info
+//- /NOW -reroll        Re-Roll
 //- /NOW -fight {name}	Fight against another character
 //- /NOW -help          Get list of helpful information
 //- /NOW -leaderboard   See the leaderboard
