@@ -28,8 +28,9 @@ namespace Gooeth.Controllers
     }
 }
 
-//- /NOW                Create or get Info
-//- /NOW -reroll        Re-Roll
+//- /NOW                Create or get character info
+//- /NOW -reroll        Re-Roll character
 //- /NOW -fight {name}	Fight against another character
-//- /NOW -help          Get list of helpful information
+//- /NOW -whois {name}  Get info on another character
 //- /NOW -leaderboard   See the leaderboard
+//- /NOW -help          Get list of helpful information
