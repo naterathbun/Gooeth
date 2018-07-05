@@ -6,7 +6,7 @@ using System.Web;
 
 namespace Gooeth.Models
 {
-    public class Character
+    public class NowCharacter
     {
         [BsonId]
         public string Id { get; set; }
