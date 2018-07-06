@@ -17,60 +17,64 @@ namespace Gooeth
 
         public SlashCommandReply Process(SlashCommandPayload command)
         {
+            var character = new NowCharacter();
+            var reply = new SlashCommandReply();
             var action = GetAction(command.text);
 
-            var character = GetCharacter(command.user_id, command.user_name);
-            return FormatReply(character, NowActions.CreateCharacter);
-
-
-
-
-
-            return new SlashCommandReply();
+            switch (action)
+            {
+                case NowActions.CreateCharacter:
+                    character = GetCharacter(command.team_domain, command.user_name);
+                    reply.text = String.Format("You are {0}, a mighty {1}. You are level {2}.", character.Name, character.Class, character.Level);
+                    break;
+                case NowActions.RerollCharacter:
+                    character = RerollCharacter(command.team_domain, command.user_name);
+                    reply.text = String.Format("You are {0}, a mighty {1}. You are level {2}.", character.Name, character.Class, character.Level);
+                    break;
+                case NowActions.Help:
+                    reply.text = "/rpg.....Create or Show your character\n/rpg reroll.....Resets your character, class, stats and level\n/rpg leaderboard.....Lists top 10 characters\n/rpg fight {name}.....Fight your character against {name}\n/rpg help.....Shows this list of commands";
+                    break;
+                case NowActions.Leaderboard:
+                    reply.text = GetLeaderboard(command.team_id);
+                    break;
+                case NowActions.Fight:
+                    character = GetCharacter(command.team_domain, command.user_name);
+                    reply.text = Fight(character, command.text);
+                    break;
+                case NowActions.Error:
+                default:
+                    reply.text = "Error in command string.";
+                    break;
+            }
+            return reply;
         }
 
-        public NowCharacter GetCharacter(string id, string name)
+        private string GetLeaderboard(string team)
         {
+            return "";
+        }
+
+        private string Fight(NowCharacter character, string text)
+        {
+            return "";
+        }
+
+        private NowCharacter GetCharacter(string team, string name)
+        {
+            var id = team + name;
             var character = _mongo.GetById<NowCharacter>(id);
 
             if (character != null)
                 return character;
 
-            return CreateCharacter(id, name);
+            return CreateCharacter(team, name);
         }
 
-        public NowCharacter RerollCharacter(string id, string name)
-        {
-            var character = _mongo.GetById<NowCharacter>(id);
-
-            if (character == null)
-                return CreateCharacter(id, name);
-
-            ResetCharacter(character);
-            _mongo.Save<NowCharacter>(character);
-
-            return character;
-        }
-
-        public SlashCommandReply FormatReply(NowCharacter character, NowActions action)
-        {
-            var reply = new SlashCommandReply();
-
-
-
-
-
-
-
-            return reply;
-        }
-
-
-        private NowCharacter CreateCharacter(string id, string name)
+        private NowCharacter CreateCharacter(string team, string name)
         {
             var character = new NowCharacter()
             {
-                Id = id,
+                Id = team + name,
                 Name = name,
                 Class = GetClass(),
                 Level = 1,
@@ -82,6 +86,19 @@ namespace Gooeth
                 Charisma = GetStat()
             };
 
+            _mongo.Save<NowCharacter>(character);
+
+            return character;
+        }
+
+        private NowCharacter RerollCharacter(string id, string name)
+        {
+            var character = _mongo.GetById<NowCharacter>(id);
+
+            if (character == null)
+                return CreateCharacter(id, name);
+
+            ResetCharacter(character);
             _mongo.Save<NowCharacter>(character);
 
             return character;
@@ -133,9 +150,22 @@ namespace Gooeth
         {
             var classes = new List<string>()
             {
-                "Paladin",
-                "Mage",
-                "Rogue"
+                "Plumber",
+                "Mall Cop",
+                "Televangelist",
+                "Curling Megafan",
+                "Garbage Man",
+                "Hobo",
+                "Street Sweeper",
+                "Mailman",
+                "Junior Developer",
+                "Plastic Surgeon",
+                "Furniture Salesman",
+                "Geriatric Walmart Greeter",
+                "LARPer",
+                "Youtube Personality",
+                "Child Actor",
+                
             };
 
             var random = new Random().Next(0, classes.Count);
