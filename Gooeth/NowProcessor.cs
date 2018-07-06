@@ -24,21 +24,21 @@ namespace Gooeth
             switch (action)
             {
                 case NowActions.CreateCharacter:
-                    character = GetCharacter(command.team_domain, command.user_name);
-                    reply.text = String.Format("You are {0}, a powerful {1}. You are level {2}.", character.Name, character.Class, character.Level);
+                    character = GetCharacter(command.team_domain, command.user_name);                    
+                    reply.text = String.Format("Behold {0}, a powerful {1} (Level {2}).", character.Name, character.Class, character.Level);
                     break;
                 case NowActions.RerollCharacter:
-                    character = RerollCharacter(command.team_domain, command.user_name);
-                    reply.text = String.Format("You are {0}, a powerful {1}. You are level {2}.", character.Name, character.Class, character.Level);
+                    character = RerollCharacter(command.team_domain, command.user_name);                    
+                    reply.text = String.Format("{0} has rerolled {1} and returned to level {2}.", character.Name, character.Class, character.Level);
                     break;
                 case NowActions.Help:
-                    reply.text = "/rpg.....Create or Show your character\n/rpg reroll.....Resets your character, class, stats and level\n/rpg leaderboard.....Lists top 10 characters\n/rpg fight {name}.....Fight your character against {name}\n/rpg help.....Shows this list of commands";
+                    reply.text = "/rpg.....Create or show off your character\n/rpg reroll.....Reset your character, class, stats and level\n/rpg leaderboard.....List top 10 characters\n/rpg fight {name}.....Fight your character against {name}\n/rpg help.....Show this list of commands";
                     break;
                 case NowActions.Leaderboard:
                     reply.text = GetLeaderboard(command.team_id);
                     break;
                 case NowActions.Fight:
-                    character = GetCharacter(command.team_domain, command.user_name);
+                    character = GetCharacter(command.team_domain, command.user_name);                    
                     reply.text = ResolveFight(character, command.team_id, command.text);
                     break;
                 case NowActions.Error:
@@ -73,10 +73,10 @@ namespace Gooeth
                 {
                     character.Level += 1;
                     _mongo.Save<NowCharacter>(character);
-                    return string.Format("You defeated {0}, and are now level {1}!", opponent.Name, character.Level);
+                    return string.Format("The {0} {1} (Level {2}) has defeated the {3} {4} (Level {5}). Congrats!", character.Class, character.Name, character.Level, opponent.Class, opponent.Name, opponent.Level);
                 }
                 else
-                    return string.Format("You were defeated by {0} in a brutal battle.", opponent.Name);
+                    return string.Format("The {0} {1} (Level {2}) lost a fight to the {3} {4} (Level {5}). Too bad!", character.Class, character.Name, character.Level, opponent.Class, opponent.Name, opponent.Level);
             }
 
             return "Opponent not found.";
@@ -121,15 +121,16 @@ namespace Gooeth
             return character;
         }
 
-        private NowCharacter RerollCharacter(string id, string name)
+        private NowCharacter RerollCharacter(string team, string name)
         {
-            var character = _mongo.GetById<NowCharacter>(id + name);
+            var id = team + name;
+            var character = _mongo.GetById<NowCharacter>(id);
 
             if (character == null)
-                return CreateCharacter(id, name);
+                return CreateCharacter(team, name);
 
             ResetCharacter(character);
-            _mongo.Save<NowCharacter>(character);
+            _mongo.Save<NowCharacter>(character, id);
 
             return character;
         }
