@@ -19,26 +19,17 @@ namespace Gooeth.Controllers
         }
 
         [HttpGet()]
-        [Route("api/now/{id}")]
-        public string Get(string id)
+        [Route("api/now")]
+        public string Get()
         {
-            return "Your character is " + id + ". Updated 7/5.";
+            return "NOW is online.";
         }
         
         [HttpPost()]
         [Route("api/now")]
-        public string Post(SlashCommandPayload request)
+        public SlashCommandReply Post(SlashCommandPayload request)
         {
-            var character = _nowProcessor.GetCharacter(request.user_id, request.user_name);
-            var message = string.Format("Your character is {0}, a mighty {1}. You are level {2}.", character.Name, character.Class, character.Level);
-            return message;
+            return _nowProcessor.Process(request);
         }
     }
 }
-
-//- /NOW                Create or get character info
-//- /NOW -reroll        Re-Roll character
-//- /NOW -fight {name}	Fight against another character
-//- /NOW -whois {name}  Get info on another character
-//- /NOW -leaderboard   See the leaderboard
-//- /NOW -help          Get list of helpful information

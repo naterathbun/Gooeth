@@ -2,8 +2,6 @@
 using Gooeth.MongoDB;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace Gooeth
 {
@@ -16,6 +14,21 @@ namespace Gooeth
             _mongo = new Mongo("NowCharacter");
         }
 
+
+        public SlashCommandReply Process(SlashCommandPayload command)
+        {
+            var action = GetAction(command.text);
+
+            var character = GetCharacter(command.user_id, command.user_name);
+            return FormatReply(character, NowActions.CreateCharacter);
+
+
+
+
+
+            return new SlashCommandReply();
+        }
+
         public NowCharacter GetCharacter(string id, string name)
         {
             var character = _mongo.GetById<NowCharacter>(id);
@@ -26,28 +39,97 @@ namespace Gooeth
             return CreateCharacter(id, name);
         }
 
+        public NowCharacter RerollCharacter(string id, string name)
+        {
+            var character = _mongo.GetById<NowCharacter>(id);
+
+            if (character == null)
+                return CreateCharacter(id, name);
+
+            ResetCharacter(character);
+            _mongo.Save<NowCharacter>(character);
+
+            return character;
+        }
+
+        public SlashCommandReply FormatReply(NowCharacter character, NowActions action)
+        {
+            var reply = new SlashCommandReply();
+
+
+
+
+
+
+
+            return reply;
+        }
+
+
         private NowCharacter CreateCharacter(string id, string name)
         {
-            var random = new Random();
             var character = new NowCharacter()
             {
                 Id = id,
                 Name = name,
-                Class = GetRandomClass(),
-                Level = 1,  
-                Strength = random.Next(1,20),
-                Dexterity = random.Next(1, 20),
-                Constitution = random.Next(1, 20),
-                Intellect = random.Next(1, 20),
-                Wisdom = random.Next(1, 20),
-                Charisma = random.Next(1, 20)
+                Class = GetClass(),
+                Level = 1,
+                Strength = GetStat(),
+                Dexterity = GetStat(),
+                Constitution = GetStat(),
+                Intellect = GetStat(),
+                Wisdom = GetStat(),
+                Charisma = GetStat()
             };
 
             _mongo.Save<NowCharacter>(character);
+
             return character;
         }
 
-        private string GetRandomClass()
+        private NowCharacter ResetCharacter(NowCharacter character)
+        {
+            character.Level = 1;
+            character.Class = GetClass();
+            character.Strength = GetStat();
+            character.Dexterity = GetStat();
+            character.Constitution = GetStat();
+            character.Intellect = GetStat();
+            character.Wisdom = GetStat();
+            character.Charisma = GetStat();
+
+            return character;
+        }
+
+        private NowActions GetAction(string commandText)
+        {
+            var text = commandText.ToLower();
+
+            if (text == null || text == "")
+                return NowActions.CreateCharacter;
+
+            if (text.Contains("help"))
+                return NowActions.Help;
+
+            if (text.Contains("reroll"))
+                return NowActions.RerollCharacter;
+
+            if (text.Contains("leaderboard"))
+                return NowActions.Leaderboard;
+
+            if (text.Contains("fight"))
+                return NowActions.Fight;
+
+            return NowActions.Error;
+        }
+
+        private int GetStat()
+        {
+            var random = new Random();
+            return random.Next(1, 20);
+        }
+
+        private string GetClass()
         {
             var classes = new List<string>()
             {
@@ -57,8 +139,7 @@ namespace Gooeth
             };
 
             var random = new Random().Next(0, classes.Count);
-            return classes[random];            
+            return classes[random];
         }
-
     }
 }

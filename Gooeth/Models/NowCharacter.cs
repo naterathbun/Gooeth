@@ -1,8 +1,4 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace Gooeth.Models
 {
@@ -13,7 +9,6 @@ namespace Gooeth.Models
         public string Name { get; set; }        
         public string Class { get; set; }
         public int Level { get; set; }
-        public int HP { get; set; }
         public int Strength { get; set; }
         public int Dexterity { get; set; }
         public int Constitution { get; set; }
