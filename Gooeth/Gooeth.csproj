@@ -140,8 +140,9 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\NowCharacter.cs" />
-    <Compile Include="Models\NowRequest.cs" />
+    <Compile Include="Models\SlashCommandPayload.cs" />
     <Compile Include="MongoDB\Mongo.cs" />
+    <Compile Include="NowProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

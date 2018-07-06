@@ -10,11 +10,8 @@ namespace Gooeth.Models
     {
         [BsonId]
         public string Id { get; set; }
-        public string Name { get; set; }
-        public string Race { get; set; }
+        public string Name { get; set; }        
         public string Class { get; set; }
-        public string Weapon { get; set; }
-        public string Item { get; set; }
         public int Level { get; set; }
         public int HP { get; set; }
         public int Strength { get; set; }

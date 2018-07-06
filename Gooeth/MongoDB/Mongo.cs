@@ -22,24 +22,28 @@ namespace Gooeth.MongoDB
         public T GetById<T>(string id)
         {
             var filter = Builders<T>.Filter.Eq("_id", ObjectId.Parse(id));
-            return _database.GetCollection<T>(typeof(T).Name).Find<T>(filter).FirstOrDefault();            
+            return _database.GetCollection<T>(typeof(T).Name).Find<T>(filter).FirstOrDefault();
         }
 
-        public List<T> GetMany<T>()
+        public IEnumerable<T> GetMany<T>()
         {
             return _database.GetCollection<T>(typeof(T).Name).Find(r => true).ToList();
         }
 
-        public void Save<T>(T value)
+        public void Save<T>(T value, string id = null)
         {
-            _database.GetCollection<T>(typeof(T).Name).InsertOne(value);
+            var collection = _database.GetCollection<T>(typeof(T).Name);
+
+            if (id == null)
+                collection.InsertOne(value);
+            else
+                collection.ReplaceOne(Builders<T>.Filter.Eq("_id", ObjectId.Parse(id)), value);
         }
-        
+
         public void Delete<T>(string id)
         {
             var filter = Builders<T>.Filter.Eq("_id", ObjectId.Parse(id));
             _database.GetCollection<T>(typeof(T).Name).FindOneAndDelete<T>(filter);
         }
-
     }
 }

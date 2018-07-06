@@ -10,7 +10,14 @@ using System.Web.Http;
 namespace Gooeth.Controllers
 {
     public class NowController : ApiController
-    {        
+    {
+        private NowProcessor _nowProcessor;
+
+        public NowController()
+        {
+            _nowProcessor = new NowProcessor();
+        }
+
         [HttpGet()]
         [Route("api/now/{id}")]
         public string Get(string id)
@@ -20,9 +27,11 @@ namespace Gooeth.Controllers
         
         [HttpPost()]
         [Route("api/now")]
-        public string Post(NowRequest request)
+        public string Post(SlashCommandPayload request)
         {
-            return "stuff";
+            var character = _nowProcessor.GetCharacter(request.user_id, request.user_name);
+            var message = string.Format("Your character is {0}, a mighty {1}. You are level {2}.", character.Name, character.Class, character.Level);
+            return message;
         }
     }
 }
