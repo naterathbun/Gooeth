@@ -123,7 +123,7 @@ namespace Gooeth
 
         private NowCharacter RerollCharacter(string id, string name)
         {
-            var character = _mongo.GetById<NowCharacter>(id);
+            var character = _mongo.GetById<NowCharacter>(id + name);
 
             if (character == null)
                 return CreateCharacter(id, name);
@@ -150,10 +150,10 @@ namespace Gooeth
 
         private NowActions GetAction(string commandText)
         {
-            var text = commandText.ToLower();
-
-            if (text == null || text == "")
+            if (string.IsNullOrEmpty(commandText))
                 return NowActions.CreateCharacter;
+            
+            var text = commandText.ToLower();
 
             if (text.Contains("help"))
                 return NowActions.Help;
