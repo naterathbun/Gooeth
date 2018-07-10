@@ -106,6 +106,12 @@ namespace Gooeth
             return CreateCharacter(team, name);
         }
 
+        private NowCharacter GetOpponent(string team, string name)
+        {
+            var id = team + name;
+            return _mongo.GetById<NowCharacter>(id);            
+        }
+
         private NowCharacter CreateCharacter(string team, string name)
         {
             var character = new NowCharacter()
@@ -181,7 +187,7 @@ namespace Gooeth
         private string Fight(string team, string characterName, string text)
         {
             var character = _mongo.GetById<NowCharacter>(team + characterName);
-            var opponent = GetCharacter(team, text.Split(' ').Last());
+            var opponent = GetOpponent(team, text.Split(' ').Last());
 
             if (opponent != null)
             {
