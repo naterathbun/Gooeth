@@ -157,20 +157,19 @@ namespace Gooeth
 
         private string GetLeaderboard(string team)
         {
-            var leaders = _mongo.GetMany<NowCharacter>().ToList();
+            var leaders = _mongo.GetMany<NowCharacter>()
+                .Where(x => x.Id.StartsWith(team))
+                .OrderByDescending(x => x.Level)
+                .ToList();
 
             var leaderboardSize = leaders.Count < 3 ? leaders.Count : 3;
 
-            var leaderBoard = leaders
-                .Where(x => x.Id.StartsWith(team))
-                .OrderByDescending(x => x.Level)
-                .ToList()
-                .GetRange(0, leaderboardSize);
+            var topThree = leaders.GetRange(0, leaderboardSize).ToList();
 
             var text = "Leaderboard for " + team + ":\n";
             int counter = 1;
 
-            foreach (var character in leaders)
+            foreach (var character in topThree)
             {
                 text = text + counter + ": " + character.Name + ", " + character.Class + ", Level " + character.Level + "\n";
                 counter++;
