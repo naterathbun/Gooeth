@@ -53,7 +53,7 @@ namespace Gooeth
                 case NowActions.Fight:
                     character = GetCharacter(command.team_domain, command.user_name);
                     reply.text = Fight(command.team_domain, character.Name, command.text);
-                    reply.response_type = "in_channel";
+                    reply.response_type = reply.text == "Opponent not found" ? "ephemeral" : "in_channel";
                     break;
                 case NowActions.Error:
                 default:
