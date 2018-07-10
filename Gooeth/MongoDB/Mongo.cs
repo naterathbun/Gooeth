@@ -25,7 +25,7 @@ namespace Gooeth.MongoDB
 
         public IEnumerable<T> GetMany<T>()
         {
-            return _database.GetCollection<T>(typeof(T).Name).Find(r => true).ToList();
+            return _database.GetCollection<T>(typeof(T).Name).AsQueryable();            
         }
 
         public void Save<T>(T value, string id = null)
@@ -42,6 +42,11 @@ namespace Gooeth.MongoDB
         {
             var filter = Builders<T>.Filter.Eq("_id", id);
             _database.GetCollection<T>(typeof(T).Name).FindOneAndDelete<T>(filter);
+        }
+
+        public void Drop<T>()
+        {
+            _database.DropCollection(typeof(T).Name);
         }
     }
 }
