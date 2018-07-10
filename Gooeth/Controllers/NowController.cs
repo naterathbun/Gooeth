@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace Gooeth.Controllers
@@ -27,9 +28,13 @@ namespace Gooeth.Controllers
         
         [HttpPost()]
         [Route("api/now")]
-        public SlashCommandReply Post(SlashCommandPayload request)
+        public IHttpActionResult Post(SlashCommandPayload request)
         {
-            return _nowProcessor.Process(request);
-        }
+            Task.Run(async () =>
+            {
+                _nowProcessor.Process(request);
+            });
+            return Ok();
+        }        
     }
 }

@@ -1,21 +1,30 @@
 ﻿using Gooeth.Models;
 using Gooeth.MongoDB;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Gooeth
 {
     public class NowProcessor
     {
         private Mongo _mongo;
+        private HttpClient _client;
+        private Random _random;
 
         public NowProcessor()
         {
             _mongo = new Mongo("NowCharacter");
+            _client = new HttpClient();
+            _random = new Random();
         }
 
 
-        public SlashCommandReply Process(SlashCommandPayload command)
+        public void Process(SlashCommandPayload command)
         {
             var character = new NowCharacter();
             var reply = new SlashCommandReply();
@@ -25,28 +34,39 @@ namespace Gooeth
             {
                 case NowActions.CreateCharacter:
                     character = GetCharacter(command.team_domain, command.user_name);                    
-                    reply.text = String.Format("Behold {0}, a powerful {1} (Level {2}).", character.Name, character.Class, character.Level);
+                    reply.text = String.Format("Behold {0}, a powerful {1} (Level {2}).\nStr: {3}, Dex: {4}, Con: {5}, Int: {6}, Wis: {7}, Cha: {8}", character.Name, character.Class, character.Level, character.Strength, character.Dexterity, character.Constitution, character.Intelligence, character.Wisdom, character.Charisma);
+                    reply.response_type = "in_channel";
                     break;
                 case NowActions.RerollCharacter:
                     character = RerollCharacter(command.team_domain, command.user_name);                    
-                    reply.text = String.Format("{0} has rerolled {1} and returned to level {2}.", character.Name, character.Class, character.Level);
+                    reply.text = String.Format("{0} has rerolled {1} and returned to level {2}.\nStr: {3}, Dex: {4}, Con: {5}, Int: {6}, Wis: {7}, Cha: {8}", character.Name, character.Class, character.Level, character.Strength, character.Dexterity, character.Constitution, character.Intelligence, character.Wisdom, character.Charisma);
+                    reply.response_type = "in_channel";
                     break;
                 case NowActions.Help:
                     reply.text = "/rpg.....Create or show off your character\n/rpg reroll.....Reset your character, class, stats and level\n/rpg leaderboard.....List top 10 characters\n/rpg fight {name}.....Fight your character against {name}\n/rpg help.....Show this list of commands";
                     break;
                 case NowActions.Leaderboard:
-                    reply.text = GetLeaderboard(command.team_id);
+                    reply.text = GetLeaderboard(command.team_domain);
                     break;
                 case NowActions.Fight:
-                    character = GetCharacter(command.team_domain, command.user_name);                    
-                    reply.text = ResolveFight(character, command.team_id, command.text);
+                    character = GetCharacter(command.team_domain, command.user_name);
+                    reply.text = ResolveFight(character, command.team_domain, command.text);
+                    reply.response_type = "in_channel";
                     break;
                 case NowActions.Error:
                 default:
                     reply.text = "Error in command string.";
                     break;
             }
-            return reply;
+
+            SendPost(reply, command.response_url);
+        }
+
+        private async void SendPost(SlashCommandReply reply, string url)
+        {
+            var json = JsonConvert.SerializeObject(reply);
+            var content = new StringContent(json, UnicodeEncoding.UTF8, "application/json");            
+            await _client.PostAsync(url, content);
         }
 
         private string GetLeaderboard(string team)
@@ -55,9 +75,8 @@ namespace Gooeth
         }
 
         private string ResolveFight(NowCharacter character, string team, string text)
-        {
-            var opponentName = text;
-            var opponent = GetCharacter(team, opponentName);
+        {            
+            var opponent = GetCharacter(team, text.Split(' ').Last());
 
             if (opponent != null)
             {
@@ -84,8 +103,8 @@ namespace Gooeth
 
         private int StatCompare(int charStat, int oppStat)
         {            
-            var fightRandomizer = new Random().Next(-3, 4);
-            int result = (charStat - oppStat) + fightRandomizer;
+            var randomizer = _random.Next(-3, 4);
+            int result = (charStat - oppStat) + randomizer;
             return result >= 0 ? 1 : -1;
         }
 
@@ -172,9 +191,8 @@ namespace Gooeth
         }
 
         private int GetStat()
-        {
-            var random = new Random();
-            return random.Next(1, 20);
+        {            
+            return _random.Next(1, 20);
         }
 
         private string GetClass()
@@ -204,7 +222,7 @@ namespace Gooeth
 
             };
 
-            var random = new Random().Next(0, classes.Count);
+            var random = _random.Next(0, classes.Count);
             return classes[random];
         }
     }
