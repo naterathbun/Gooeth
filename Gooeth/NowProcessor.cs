@@ -43,7 +43,7 @@ namespace Gooeth
                     reply.response_type = "in_channel";
                     break;
                 case NowActions.Help:
-                    reply.text = "/rpg.....Create or show off your character\n/rpg reroll.....Reset your character, class, stats and level\n/rpg leaderboard.....List top 10 characters\n/rpg fight {name}.....Fight your character against {name}\n/rpg help.....Show this list of commands";
+                    reply.text = "/rpg..... Create or show off your character\n/rpg reroll..... Reset your character, class, stats and level\n/rpg leaderboard..... List top 3 characters on your server\n/rpg fight {name}..... Fight your character against {name}\n/rpg help..... Show this list of commands";
                     reply.response_type = "ephemeral";
                     break;
                 case NowActions.Leaderboard:
