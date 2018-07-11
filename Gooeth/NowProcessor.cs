@@ -43,17 +43,17 @@ namespace Gooeth
                     reply.response_type = "in_channel";
                     break;
                 case NowActions.Help:
-                    reply.text = "/rpg..... Create or show off your character\n/rpg reroll..... Reset your character, class, stats and level\n/rpg leaderboard..... List top 3 characters on your server\n/rpg fight {name}..... Fight your character against {name}\n/rpg help..... Show this list of commands";
+                    reply.text = "/rpg..... Create or show off your character\n/rpg reroll..... Reset your character, class, stats and level\n/rpg leaderboard..... List top 10 characters on your server\n/rpg fight {name}..... Fight your character against {name}\n/rpg help..... Show this list of commands";
                     reply.response_type = "ephemeral";
                     break;
-                case NowActions.Leaderboard:
+                case NowActions.Leaderboard:                    
                     reply.text = GetLeaderboard(command.team_domain);
                     reply.response_type = "ephemeral";
                     break;
                 case NowActions.Fight:
                     character = GetCharacter(command.team_domain, command.user_name);
                     reply.text = Fight(command.team_domain, character.Name, command.text);
-                    reply.response_type = reply.text == "Opponent not found" ? "ephemeral" : "in_channel";
+                    reply.response_type = reply.text == "Opponent not found." ? "ephemeral" : "in_channel";
                     break;
                 case NowActions.Error:
                 default:
@@ -168,7 +168,7 @@ namespace Gooeth
                 .OrderByDescending(x => x.Level)
                 .ToList();
 
-            var leaderboardSize = leaders.Count < 3 ? leaders.Count : 3;
+            var leaderboardSize = leaders.Count < 10 ? leaders.Count : 10;
 
             var topThree = leaders.GetRange(0, leaderboardSize).ToList();
 
@@ -248,6 +248,14 @@ namespace Gooeth
                 "VCR Repairman",
                 "Supreme Court Justice",
                 "Juggalo",
+                "Trenchcoat Watch Salesman",
+                "Taylor Swift Roadie",
+                "Master Hacker",
+                "Pizza Toppings Critic",
+                "Dog Walker",
+                "Dustin Sarcasm Translator",
+                "Hamster Rancher",
+                "Dumpster Diver",
             };
 
             var random = _random.Next(0, classes.Count);
@@ -257,6 +265,12 @@ namespace Gooeth
         private void ResetGame()
         {
             _mongo.Drop<NowCharacter>();
+        }
+
+        private void DeleteChar(string team, string name)
+        {
+            var id = team + name;
+            _mongo.Delete<NowCharacter>(id);
         }
     }
 }
