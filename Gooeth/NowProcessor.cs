@@ -46,7 +46,7 @@ namespace Gooeth
                     reply.text = "/rpg..... Create or show off your character\n/rpg reroll..... Reset your character, class, stats and level\n/rpg leaderboard..... List top 10 characters on your server\n/rpg fight {name}..... Fight your character against {name}\n/rpg help..... Show this list of commands";
                     reply.response_type = "ephemeral";
                     break;
-                case NowActions.Leaderboard:                    
+                case NowActions.Leaderboard:
                     reply.text = GetLeaderboard(command.team_domain);
                     reply.response_type = "ephemeral";
                     break;
@@ -76,7 +76,7 @@ namespace Gooeth
         {
             if (string.IsNullOrEmpty(commandText))
                 return NowActions.CreateCharacter;
-            
+
             var text = commandText.ToLower();
 
             if (text.Contains("help"))
@@ -109,7 +109,7 @@ namespace Gooeth
         private NowCharacter GetOpponent(string team, string name)
         {
             var id = team + name;
-            return _mongo.GetById<NowCharacter>(id);            
+            return _mongo.GetById<NowCharacter>(id);
         }
 
         private NowCharacter CreateCharacter(string team, string name)
@@ -201,12 +201,23 @@ namespace Gooeth
 
                 if (result >= 0)
                 {
+                    if (character.Level > (opponent.Level + 25))
+                        return string.Format("The {0} {1} (Level {2}) has crushed the {3} {4} (Level {5}). Such an easy victory granted no experience.", character.Class, character.Name, character.Level, opponent.Class, opponent.Name, opponent.Level);
+
                     character.Level += 1;
                     _mongo.Save<NowCharacter>(character, character.Id);
                     return string.Format("The {0} {1} (Level {2}) has defeated the {3} {4} (Level {5}). Congrats!", character.Class, character.Name, character.Level, opponent.Class, opponent.Name, opponent.Level);
                 }
-                else
+                else 
+                {
+                    if (character.Level > opponent.Level)
+                    {
+                        character.Level += 1;
+                        _mongo.Save<NowCharacter>(character, character.Id);
+                        return string.Format("The {0} {1} (Level {2}) lost a fight to the {3} {4} (Level {5}) and has been weakened!", character.Class, character.Name, character.Level, opponent.Class, opponent.Name, opponent.Level);
+                    }
                     return string.Format("The {0} {1} (Level {2}) lost a fight to the {3} {4} (Level {5}). Too bad!", character.Class, character.Name, character.Level, opponent.Class, opponent.Name, opponent.Level);
+                }
             }
 
             return "Opponent not found.";
@@ -220,7 +231,7 @@ namespace Gooeth
         }
 
         private int GetStat()
-        {            
+        {
             return _random.Next(1, 20);
         }
 
