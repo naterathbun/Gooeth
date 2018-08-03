@@ -32,6 +32,10 @@ namespace Gooeth
 
             switch (action)
             {
+                case NowActions.Checkin:
+                    reply.text = GenerateCheckin();
+                    reply.response_type = "in_channel";
+                    break;
                 case NowActions.CreateCharacter:
                     character = GetCharacter(command.team_domain, command.user_name);
                     reply.text = String.Format("Behold {0}, a powerful {1} (Level {2}).\nStr: {3}, Dex: {4}, Con: {5}, Int: {6}, Wis: {7}, Cha: {8}", character.Name, character.Class, character.Level, character.Strength, character.Dexterity, character.Constitution, character.Intelligence, character.Wisdom, character.Charisma);
@@ -65,6 +69,99 @@ namespace Gooeth
             SendPost(reply, command.response_url);
         }
 
+        private string GenerateCheckin()
+        {
+            var verb = new List<string>()
+            {
+                "working on",
+                "occupied with",
+                "looking into",
+                "investigating",
+                "refactoring",
+                "trying to figure out",
+                "fixing Chad's errors on",
+                "undoing what Dustin did to",
+                "updating",
+                "converting",
+                "removing old code from",
+                "debugging",
+                "trying to make sense of",
+                "cleaning up",
+                "writing tests for",
+                "figuring out a bug with",
+                "fixing a bug on",
+                "learning more about",
+                "adding new functionality to",
+                "converting V11 code for",
+                "publishing Nuget packages for",
+                "reviewing a PR for",
+                "in a meeting with ops about",
+                "helping people with",
+                "doing prod support for",
+                "writing up a post mortem on",
+                "recycling the app pools for",
+                "putting together a mockup for",
+            };
+
+            var taskName = new List<string>()
+            {
+                "Azure",
+                "Giordanos",
+                "Web Transmission",
+                "the Frontend",
+                "Angular",
+                "OComm",
+                "the Service Bus queues",
+                "Onosys.Core",
+                "Geocoding",
+                "Squirrel",
+                "Authorize.Net",
+                "Vantiv Litle",
+                "Fishbowl",
+                "Coupon Generation",
+                "old V11 sites",
+                "Rackspace",
+                "Cloudflare",
+                "the BP custom integration",
+                "some old Eddie code",
+                "Nothing Bundt onboarding",
+                "Toppings Calculator",
+                "Delivery Fee Calculator",
+                "a potential new client",
+                "Azure Functions",
+                "IP Printer issues",
+                "Delayed Orders"
+            };
+
+            var status = new List<string>()
+            {
+                "I should be done this afternoon",
+                "It's taking longer than I anticipated",
+                "I'll be wrapping it up shortly",
+                "I'm going to need some help",
+                "It's a bit more complicated than I originally thought",
+                "I just need to write some tests and I'm done",
+                "I have a lot more to do",
+                "It's going well",
+                "I'm totally lost",
+                "No problems",
+                "No issues",
+                "Chugging along",
+                "Everything is hunky dory",
+                "I'll need someone to review",
+                "Just finishing up",
+                "All good",
+                "Having some trouble",
+                "I have no idea how to proceed",
+                "I think we need to talk to Ops and get their input",
+                "This needs reviewing"
+            };
+
+            var random = new Random();
+
+            return string.Format("I'm {0} {1}. {2}.", verb[random.Next(0, verb.Count)], taskName[random.Next(0, taskName.Count)], status[random.Next(0, status.Count)]);
+        }
+
         private async void SendPost(SlashCommandReply reply, string url)
         {
             var json = JsonConvert.SerializeObject(reply);
@@ -78,6 +175,9 @@ namespace Gooeth
                 return NowActions.CreateCharacter;
 
             var text = commandText.ToLower();
+
+            if (text.Contains("checkin"))
+                return NowActions.Checkin;
 
             if (text.Contains("help"))
                 return NowActions.Help;
@@ -219,7 +319,6 @@ namespace Gooeth
                     return string.Format("The {0} {1} (Level {2}) lost a fight to the {3} {4} (Level {5}). Too bad!", character.Class, character.Name, character.Level, opponent.Class, opponent.Name, opponent.Level);
                 }
             }
-
             return "Opponent not found.";
         }
 

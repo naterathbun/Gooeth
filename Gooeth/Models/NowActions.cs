@@ -12,6 +12,7 @@ namespace Gooeth.Models
         Fight,
         Leaderboard,
         Help,
-        Error
+        Error,
+        Checkin
     }
 }
